@@ -286,6 +286,26 @@ as any React app. Think of it as the bridge between Vaadin's Java comfort and Re
 
 ---
 
+## Why Not Thymeleaf?
+
+Thymeleaf is excellent for simple server-rendered pages. But it has 
+a fundamental ceiling — every interaction requires a server round-trip, 
+there's no component model, no reactive state, and no SPA capability.
+
+| | Thymeleaf | SpringUI |
+|---|---|---|
+| Rendering | Server-side | Client-side (WASM) |
+| Interactivity | Full page reloads | Reactive, like React |
+| Offline capable | No | Yes |
+| Component model | No | Yes |
+| Real-time UI updates | Needs workarounds | Native |
+
+Thymeleaf and SpringUI aren't competitors — they solve different problems. 
+SpringUI is for when your UI needs to feel like a modern web app, not a 
+server-rendered page.
+
+---
+
 ## Roadmap
 
 - [x] Core component model (`@SpringUIComponent`, `@State`, `@Props`)
