@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Project Identity -->
+    <groupId>io.springui</groupId>
+    <artifactId>springui-parent</artifactId>
+    <version>0.1.0-alpha</version>
+    <packaging>pom</packaging>
+
+    <name>SpringUI</name>
+    <description>
+        A React-inspired frontend framework for Java developers.
+        Write UI in Java, compile to WebAssembly, run in the browser.
+    </description>
+    <url>https://github.com/yashwardhan17/springui</url>
+
+    <!-- Modules -->
+    <modules>
+        <module>springui-core</module>
+        <module>springui-compiler</module>
+        <module>springui-devtools</module>
+    </modules>
+
+    <!-- Global Properties -->
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- Dependency Versions -->
+        <junit.version>5.10.2</junit.version>
+        <teavm.version>0.9.2</teavm.version>
+    </properties>
+
+    <!-- Dependency Management (versions defined here, used in child modules) -->
+    <dependencyManagement>
+        <dependencies>
+
+            <!-- JUnit 5 for testing -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+            <!-- TeaVM — Java to WebAssembly compiler -->
+            <dependency>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-core</artifactId>
+                <version>${teavm.version}</version>
+            </dependency>
+
+            <!-- TeaVM JavaScript interop -->
+            <dependency>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-interop</artifactId>
+                <version>${teavm.version}</version>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <!-- Build Configuration -->
+    <build>
+        <pluginManagement>
+            <plugins>
+
+                <!-- Maven Compiler Plugin — enforce Java 21 -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.12.1</version>
+                    <configuration>
+                        <source>21</source>
+                        <target>21</target>
+                    </configuration>
+                </plugin>
+
+                <!-- Maven Surefire — run JUnit 5 tests -->
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>3.2.5</version>
+                </plugin>
+
+                <!-- TeaVM Maven Plugin — Java to WASM compilation -->
+                <plugin>
+                    <groupId>org.teavm</groupId>
+                    <artifactId>teavm-maven-plugin</artifactId>
+                    <version>${teavm.version}</version>
+                </plugin>
+
+            </plugins>
+        </pluginManagement>
+    </build>
+
+    <!-- License -->
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0</url>
+        </license>
+    </licenses>
+
+    <!-- Developer Info -->
+    <developers>
+        <developer>
+            <id>yashwardhan17</id>
+            <name>Yashwardhan</name>
+            <email>yashwardhan.1717@gmail.com</email>
+            <url>https://github.com/yashwardhan17</url>
+        </developer>
+    </developers>
+
+    <!-- Source Control -->
+    <scm>
+        <connection>scm:git:git://github.com/yashwardhan17/springui.git</connection>
+        <developerConnection>scm:git:ssh://github.com/yashwardhan17/springui.git</developerConnection>
+        <url>https://github.com/yashwardhan17/springui</url>
+    </scm>
+
+</project>
