@@ -13,7 +13,7 @@ import java.util.Map;
  * - onMount()    → called when component is added to the DOM (like componentDidMount)
  * - onUnmount()  → called when component is removed (like componentWillUnmount)
  */
-public abstract class UIComponent {
+public abstract class UIComponent extends VNodeBuilder {
 
     // ===========================
     // Internal State
