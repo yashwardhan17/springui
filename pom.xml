@@ -24,6 +24,7 @@
         <module>springui-core</module>
         <module>springui-compiler</module>
         <module>springui-devtools</module>
+        <module>examples/todo-app</module>
     </modules>
 
     <!-- Global Properties -->
