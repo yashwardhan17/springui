@@ -18,19 +18,33 @@
     <description>TeaVM integration — compiles Java components to WebAssembly</description>
 
     <dependencies>
+
+        <!-- SpringUI Core — compiler needs VNode, UIComponent etc -->
+        <dependency>
+            <groupId>io.springui</groupId>
+            <artifactId>springui-core</artifactId>
+            <version>0.1.0-alpha</version>
+        </dependency>
+
+        <!-- TeaVM core -->
         <dependency>
             <groupId>org.teavm</groupId>
             <artifactId>teavm-core</artifactId>
         </dependency>
+
+        <!-- TeaVM JS interop -->
         <dependency>
             <groupId>org.teavm</groupId>
             <artifactId>teavm-interop</artifactId>
         </dependency>
+
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 </project>
