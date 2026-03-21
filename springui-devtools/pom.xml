@@ -15,14 +15,31 @@
     <artifactId>springui-devtools</artifactId>
     <packaging>jar</packaging>
     <name>SpringUI DevTools</name>
-    <description>Hot reload, dev server, and browser developer tools</description>
+    <description>Hot reload, dev server, and developer tooling for SpringUI</description>
 
     <dependencies>
+
+        <!-- SpringUI Core -->
+        <dependency>
+            <groupId>io.springui</groupId>
+            <artifactId>springui-core</artifactId>
+            <version>0.1.0-alpha</version>
+        </dependency>
+
+        <!-- SpringUI Compiler -->
+        <dependency>
+            <groupId>io.springui</groupId>
+            <artifactId>springui-compiler</artifactId>
+            <version>0.1.0-alpha</version>
+        </dependency>
+
+        <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <scope>test</scope>
         </dependency>
+
     </dependencies>
 
 </project>
