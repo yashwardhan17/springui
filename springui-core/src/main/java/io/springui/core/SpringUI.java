@@ -91,4 +91,11 @@ public final class SpringUI {
     private static void log(String message) {
         System.out.println("[SpringUI] " + message);
     }
+
+    /**
+     * Returns a mounted component by ID, or null if not found.
+     */
+    public static UIComponent getComponent(String componentId) {
+        return ComponentRegistry.getInstance().get(componentId);
+    }
 }
