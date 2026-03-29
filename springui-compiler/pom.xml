@@ -19,23 +19,32 @@
 
     <dependencies>
 
-        <!-- SpringUI Core — compiler needs VNode, UIComponent etc -->
+        <!-- SpringUI Core -->
         <dependency>
             <groupId>io.springui</groupId>
             <artifactId>springui-core</artifactId>
             <version>0.1.0-alpha</version>
         </dependency>
 
-        <!-- TeaVM core -->
+        <!-- TeaVM core — Java to WASM/JS compiler -->
         <dependency>
             <groupId>org.teavm</groupId>
             <artifactId>teavm-core</artifactId>
+            <version>${teavm.version}</version>
         </dependency>
 
-        <!-- TeaVM JS interop -->
+        <!-- TeaVM interop — JS/WASM interop APIs -->
         <dependency>
             <groupId>org.teavm</groupId>
             <artifactId>teavm-interop</artifactId>
+            <version>${teavm.version}</version>
+        </dependency>
+
+        <!-- TeaVM tooling — TeaVMTool API for programmatic compilation -->
+        <dependency>
+            <groupId>org.teavm</groupId>
+            <artifactId>teavm-tooling</artifactId>
+            <version>${teavm.version}</version>
         </dependency>
 
         <!-- JUnit 5 -->
@@ -46,5 +55,16 @@
         </dependency>
 
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- TeaVM Maven Plugin -->
+            <plugin>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-maven-plugin</artifactId>
+                <version>${teavm.version}</version>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

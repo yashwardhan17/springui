@@ -65,6 +65,13 @@
                 <version>${teavm.version}</version>
             </dependency>
 
+            <!-- TeaVM tooling — programmatic compilation API -->
+            <dependency>
+                <groupId>org.teavm</groupId>
+                <artifactId>teavm-tooling</artifactId>
+                <version>${teavm.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 
