@@ -2,27 +2,40 @@ package io.springui.examples.todo;
 
 import io.springui.core.UIComponent;
 import io.springui.core.VNode;
+import io.springui.core.annotation.SpringUIComponent;
+import io.springui.core.annotation.State;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * TodoComponent — a full todo app built with SpringUI.
+ * TodoComponent — updated to use SpringUI annotation system.
  *
  * Demonstrates:
- * - Extending UIComponent
- * - Using @State via setState()
- * - Building VNode trees in render()
- * - Lifecycle methods onMount() and onUpdate()
- * - State-driven re-renders triggering VNodeDiffer + PatchApplier
+ * - @SpringUIComponent — marks this as a SpringUI component
+ * - @State — reactive state fields
+ * - SpringUIContext bootstrap in TodoApp.java
  */
+@SpringUIComponent(
+        id = "todo-app",
+        displayName = "Todo App",
+        root = true,
+        mountTarget = "root"
+)
 public class TodoComponent extends UIComponent {
 
     // ===========================
-    // State
+    // @State fields
     // ===========================
+
+    @State
     private List<Todo> todos = new ArrayList<>();
+
+    @State(persistent = true)
     private int nextId = 1;
-    private String filter = "all"; // all | active | completed
+
+    @State(persistent = true, name = "activeFilter")
+    private String filter = "all";
 
     // ===========================
     // Lifecycle
@@ -47,9 +60,7 @@ public class TodoComponent extends UIComponent {
     // ===========================
 
     public void addTodo(String text) {
-        setState(() -> {
-            todos.add(new Todo(nextId++, text, false));
-        });
+        setState(() -> todos.add(new Todo(nextId++, text, false)));
     }
 
     public void completeTodo(int id) {
@@ -98,14 +109,18 @@ public class TodoComponent extends UIComponent {
             );
         }
 
-        long activeCount = todos.stream().filter(t -> !t.isCompleted()).count();
-        long completedCount = todos.stream().filter(Todo::isCompleted).count();
+        long activeCount = todos.stream()
+                .filter(t -> !t.isCompleted()).count();
+        long completedCount = todos.stream()
+                .filter(Todo::isCompleted).count();
 
         return VNode.element("div")
                 .attr("id", "todo-app")
-                .child(VNode.element("h1").child(VNode.text("SpringUI Todo App")))
-                .child(VNode.element("p").child(VNode.text(
-                        activeCount + " active, " + completedCount + " completed")))
+                .child(VNode.element("h1")
+                        .child(VNode.text("SpringUI Todo App")))
+                .child(VNode.element("p")
+                        .child(VNode.text(activeCount + " active, " +
+                                completedCount + " completed")))
                 .child(todoList)
                 .child(VNode.element("div")
                         .attr("class", "filters")
@@ -118,8 +133,10 @@ public class TodoComponent extends UIComponent {
 
     private List<Todo> getFilteredTodos() {
         return switch (filter) {
-            case "active" -> todos.stream().filter(t -> !t.isCompleted()).toList();
-            case "completed" -> todos.stream().filter(Todo::isCompleted).toList();
+            case "active" ->
+                    todos.stream().filter(t -> !t.isCompleted()).toList();
+            case "completed" ->
+                    todos.stream().filter(Todo::isCompleted).toList();
             default -> new ArrayList<>(todos);
         };
     }
