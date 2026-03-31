@@ -81,6 +81,7 @@ public final class SpringUI {
     public static void reset() {
         log("Resetting SpringUI...");
         ComponentRegistry.getInstance().clear();
+        StoreRegistry.getInstance().reset();
         log("SpringUI reset complete.");
     }
 
