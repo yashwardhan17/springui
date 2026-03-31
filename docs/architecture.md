@@ -61,8 +61,8 @@ Fields:
 Usage:
 ```java
 VNode node = VNode.element("div")
-    .attr("class", "card")
-    .child(VNode.element("h1").child(VNode.text("Hello")));
+        .attr("class", "card")
+        .child(VNode.element("h1").child(VNode.text("Hello")));
 ```
 
 ---
@@ -137,8 +137,8 @@ Equivalent of `ReactDOM.render()` in React.
 // Mount a component
 SpringUI.render("app", new AppComponent());
 
-// Unmount a component  
-SpringUI.unmount("app");
+// Unmount a component
+        SpringUI.unmount("app");
 
 // Check if mounted
 SpringUI.isMounted("app");
@@ -169,6 +169,200 @@ div(attrs("class", "card"),
 
 Supported elements: `div, span, p, h1, h2, h3, ul, ol, li, button,
 input, form, img, a, nav, header, footer, section, article, main`
+
+---
+
+### `SpringUIContext.java`
+The application context — bootstraps the entire SpringUI framework.
+Ties together ComponentScanner, ComponentRegistry, and SpringUI entry point.
+
+```java
+SpringUIContext.create("io.myapp")
+    .register(AppComponent.class)
+    .register(ProductList.class)
+    .devMode(true)
+    .start();
+```
+
+---
+
+## Annotation System (Phase 3 — Complete)
+
+### `@SpringUIComponent`
+Marks a class as a SpringUI component. Picked up by ComponentScanner
+and auto-registered in ComponentRegistry on startup.
+
+```java
+@SpringUIComponent(id = "counter", root = true, mountTarget = "root")
+public class CounterComponent extends UIComponent {
+    @Override
+    public VNode render() {
+        return div(h1("Counter"));
+    }
+}
+```
+
+---
+
+### `@State`
+Marks a field as reactive state. Any change via `setState()` triggers
+a re-render and a diff against the previous VNode tree.
+
+```java
+@State
+private int count = 0;
+
+@State(persistent = true, name = "activeFilter")
+private String filter = "all";
+```
+
+---
+
+### `@Props`
+Marks a field as a read-only input from a parent component.
+
+```java
+@Props(required = true)
+private String title;
+
+@Props(defaultValue = "default")
+private String subtitle;
+```
+
+---
+
+### `@BindAPI`
+The killer feature. Auto-wires a component directly to a Spring Boot
+REST endpoint. No `fetch()`. No axios. Spring Security flows through naturally.
+
+```java
+@SpringUIComponent
+@BindAPI("/api/products")
+public class ProductList extends UIComponent {
+
+    @AutoFetched
+    private List<Product> products;
+
+    @Override
+    public VNode render() {
+        return ul(
+            products.stream()
+                .map(p -> li(p.getName()))
+                .toList()
+        );
+    }
+}
+```
+
+---
+
+### `@SpringUIRouter` and `@Route`
+Client-side routing, Spring style. Supports path parameters,
+auth guards, and navigation listeners.
+
+```java
+@SpringUIRouter
+public class AppRouter extends UIRouter {
+
+    @Route("/")
+    public Class<? extends UIComponent> home() { return HomeComponent.class; }
+
+    @Route("/product/:id")
+    public Class<? extends UIComponent> productDetail() {
+        return ProductDetailComponent.class;
+    }
+
+    @Route(value = "/admin", requiresAuth = true, loginPath = "/login")
+    public Class<? extends UIComponent> admin() { return AdminComponent.class; }
+}
+```
+
+---
+
+### `@SpringUIStore`
+Global state management — think Redux in Java.
+Any component can access shared store state without prop drilling.
+
+```java
+@SpringUIStore
+public class CartStore extends UIStore {
+
+    @State
+    private List<CartItem> items = new ArrayList<>();
+
+    public void addItem(CartItem item) {
+        dispatch(() -> items.add(item));
+    }
+
+    public int getTotal() {
+        return items.stream().mapToInt(CartItem::getPrice).sum();
+    }
+}
+```
+
+Inject the store into any component:
+
+```java
+@Autowired
+private CartStore cartStore;
+```
+
+Stores are registered as singletons in `StoreRegistry` on startup.
+Components subscribe to store changes and re-render automatically
+when `dispatch()` is called.
+
+Store lifecycle:
+```
+dispatch() → state mutation → notifyListeners() → subscribed components re-render
+```
+
+---
+
+## Compiler Pipeline (Phase 2 — Complete)
+
+### `TeaVMCompiler.java`
+Real TeaVM integration. Compiles SpringUI components (Java bytecode)
+to WebAssembly using TeaVM's `TeaVMTool` API.
+
+```java
+TeaVMCompiler compiler = new TeaVMCompiler(
+    new TeaVMCompilerConfig.Builder()
+        .outputDir("./springui-out")
+        .target(TeaVMCompilerConfig.Target.JAVASCRIPT)
+        .sourceMaps(true)
+        .build()
+);
+TeaVMCompilationResult result = compiler.compile("io.myapp.TodoApp");
+```
+
+---
+
+### `JSInteropGenerator.java`
+Generates the JavaScript glue layer that bridges the WASM module
+with the browser DOM. Produces a `.js` file that:
+- Loads the `.wasm` binary
+- Exposes browser DOM APIs to WASM
+- Initializes SpringUI in the browser
+- Mounts the root component
+
+---
+
+### `WasmBridge.java`
+Runtime bridge between SpringUI's WASM module and the browser.
+Manages WASM exports, routes DOM events back into WASM handlers,
+and tracks registered event callbacks.
+
+---
+
+## DevTools (Complete)
+
+### `HotReloadServer.java`
+Watches source files for changes and triggers automatic recompilation.
+Notifies connected browsers via WebSocket for live component updates.
+
+### `ComponentInspector.java`
+Runtime inspector — inspect any mounted component, see its state,
+props, and current VNode tree. The Java equivalent of React DevTools.
 
 ---
 
@@ -214,39 +408,43 @@ SpringUI brings the same model to Java via WebAssembly.
 | ComponentRegistry | 12 |
 | SpringUI | 7 |
 | VNodeBuilder | 8 |
-| TodoComponent | 8 |
-| **Total** | **75** |
+| SpringUIContext | 12 |
+| AnnotationProcessor | 15 |
+| ComponentScanner | 14 |
+| UIRouter | 16 |
+| UIStore          | 12 |
+| StoreRegistry    | 12 |
+| JSInteropGenerator | 11 |
+| SpringUICompiler | 8 |
+| TeaVMCompiler | 9 |
+| WasmBridge | 14 |
+| HotReloadServer | 14 |
+| ComponentInspector | 8 |
+| TodoComponent | 12 |
+| **Total** | **224** |
 
 ---
 
-## Phase 2 — What's Next
+## What's Next
 
-Phase 1 (core framework) is complete. Phase 2 is the compiler pipeline:
-
-- **TeaVM integration** — compile SpringUI components to WebAssembly
-- **JS interop layer** — bridge between WASM and real browser DOM APIs
-- **`@BindAPI`** — auto-wire components to Spring Boot REST endpoints
-- **`@SpringUIRouter`** — client-side routing
-- **`@SpringUIStore`** — global state management
-- **Hot reload** — dev server with live component updates
-- **Browser DevTools extension** — inspect SpringUI component trees
-
-See Issue #3 for TeaVM research progress.
+- **`#25 index.html`** — browser entry point, first thing that runs in a real browser
+- **`springui-cli`** — scaffold tool for new SpringUI projects
+- **GraphQL support** — via Spring GraphQL
+- **SSR mode** — server-side rendering
+- **Browser DevTools extension** — visual component tree inspector
 
 ---
 
 ## Example — Todo App
 
-A complete todo app built with SpringUI is available in `examples/todo-app/`.
-It demonstrates the full stack working end to end — state management,
-re-renders, filtering, and lifecycle hooks.
-```java
-TodoComponent todo = new TodoComponent();
-SpringUI.render("todo-app", todo);
+A complete todo app built with SpringUI is in `examples/todo-app/`.
+Fully annotation-driven using `@SpringUIComponent`, `@State`, and `SpringUIContext`.
 
-todo.addTodo("Learn SpringUI");
-todo.completeTodo(1);
-todo.setFilter("active");
+```java
+SpringUIContext.create("io.springui.examples.todo")
+    .register(TodoComponent.class)
+    .devMode(true)
+    .start();
 ```
 
 Output:
