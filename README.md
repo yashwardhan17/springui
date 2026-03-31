@@ -312,10 +312,10 @@ server-rendered page.
 - [x] Virtual DOM + diff engine
 - [x] TeaVM-based WASM compiler integration
 - [x] `@BindAPI` REST auto-wiring
-- [ ] `@SpringUIRouter` — client-side routing
-- [ ] `@SpringUIStore` — global state management
-- [ ] Hot reload dev server
-- [ ] Browser DevTools extension
+- [x] `@SpringUIRouter` — client-side routing
+- [x] `@SpringUIStore` — global state management
+- [x] Hot reload dev server
+- [x] Browser DevTools extension
 - [ ] SpringUI component library (buttons, forms, tables, modals)
 - [ ] GraphQL support via Spring GraphQL
 - [ ] SSR (Server-Side Rendering) mode
