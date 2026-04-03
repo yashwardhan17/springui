@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.springui</groupId>
+        <artifactId>springui-parent</artifactId>
+        <version>0.1.0-alpha</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>springui-cli</artifactId>
+    <name>SpringUI CLI</name>
+    <description>
+        Command-line scaffold tool for SpringUI projects.
+        springui new my-app | springui build | springui dev
+    </description>
+
+    <dependencies>
+
+        <!-- SpringUI Core — needed by DevCommand / BuildCommand -->
+        <dependency>
+            <groupId>io.springui</groupId>
+            <artifactId>springui-core</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- SpringUI Compiler — invoked by BuildCommand -->
+        <dependency>
+            <groupId>io.springui</groupId>
+            <artifactId>springui-compiler</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- SpringUI DevTools — invoked by DevCommand -->
+        <dependency>
+            <groupId>io.springui</groupId>
+            <artifactId>springui-devtools</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- JUnit 5 -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.3.0</version>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <mainClass>io.springui.cli.SpringUICli</mainClass>
+                        </manifest>
+                    </archive>
+                    <finalName>springui-cli</finalName>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
