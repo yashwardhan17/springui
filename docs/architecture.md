@@ -318,7 +318,7 @@ dispatch() → state mutation → notifyListeners() → subscribed components re
 
 ---
 
-## Compiler Pipeline (Phase 2 — Complete)
+## Compiler Pipeline (Phase 2 + Phase 5 — Complete)
 
 ### `TeaVMCompiler.java`
 Real TeaVM integration. Compiles SpringUI components (Java bytecode)
@@ -344,6 +344,7 @@ with the browser DOM. Produces a `.js` file that:
 - Exposes browser DOM APIs to WASM
 - Initializes SpringUI in the browser
 - Mounts the root component
+- Fires `springui:ready` and `springui:error` custom events
 
 ---
 
@@ -354,11 +355,58 @@ and tracks registered event callbacks.
 
 ---
 
+### `IndexHtmlGenerator.java` (Phase 5 — Complete)
+Generates the `index.html` browser entry point — the first file that runs
+when a user opens a SpringUI app in the browser. Called by `SpringUICompiler`
+after WASM compilation.
+
+What the generated `index.html` does:
+- Shows a loading spinner (`#springui-loading`) while WASM initializes
+- Shows a red error panel (`#springui-error`) if the WASM module fails to load
+- Provides the `<div id="root">` mount target for the root component
+- Injects `window.__SPRINGUI_CONFIG__` (mount target, devMode, version)
+- Listens for `springui:ready` / `springui:error` custom events from `JSInteropGenerator`
+- In dev mode: injects the `⚡ SpringUI DEV` badge and a WebSocket hot reload client
+  that connects to `HotReloadServer`
+
+Config options (builder pattern):
+
+| Option | Default | Description |
+|---|---|---|
+| `title` | `"SpringUI App"` | `<title>` tag |
+| `mountTargetId` | `"root"` | `<div id="...">` mount target |
+| `wasmJsFile` | `"springui.js"` | JS glue file from `JSInteropGenerator` |
+| `devMode` | `false` | DevTools badge + hot reload |
+| `writeToDisk` | `false` | Write `index.html` to `outputDir` |
+| `devServerPort` | `8080` | Hot reload WebSocket port |
+| `version` | `"0.1.0-alpha"` | Injected into `window.__SPRINGUI_CONFIG__` |
+
+Usage:
+```java
+IndexHtmlGenerator generator = new IndexHtmlGenerator(
+    IndexHtmlConfig.builder()
+        .title("Todo App")
+        .mountTargetId("root")
+        .wasmJsFile("springui.js")
+        .outputDir("./springui-out")
+        .devMode(true)
+        .writeToDisk(true)
+        .build()
+);
+IndexHtmlResult result = generator.generate();
+// result.getHtml()       — the full HTML string
+// result.getSizeBytes()  — byte size of the file
+// result.isSuccess()     — true if HTML was generated
+```
+
+---
+
 ## DevTools (Complete)
 
 ### `HotReloadServer.java`
 Watches source files for changes and triggers automatic recompilation.
 Notifies connected browsers via WebSocket for live component updates.
+The `IndexHtmlGenerator` in dev mode connects to this server automatically.
 
 ### `ComponentInspector.java`
 Runtime inspector — inspect any mounted component, see its state,
@@ -366,7 +414,32 @@ props, and current VNode tree. The Java equivalent of React DevTools.
 
 ---
 
-## Data Flow
+## Full Compilation Flow
+
+Here's the complete path from Java source to running browser app:
+
+```
+1. Developer writes @SpringUIComponent classes
+         │
+         ▼
+2. SpringUICompiler.compile(entryClass)
+         │
+         ├─► TeaVMCompiler       → compiles Java → .wasm + classes
+         │
+         ├─► JSInteropGenerator  → generates springui.js (WASM glue)
+         │
+         └─► IndexHtmlGenerator  → generates index.html (browser entry point)
+                                          │
+                                          ▼
+                                   springui-out/
+                                     ├── index.html      ← opens in browser
+                                     ├── springui.js     ← loads WASM
+                                     └── springui.wasm   ← your Java UI
+```
+
+---
+
+## Runtime Data Flow
 
 Here's exactly what happens when a user interaction triggers a state change:
 ```
@@ -412,26 +485,65 @@ SpringUI brings the same model to Java via WebAssembly.
 | AnnotationProcessor | 15 |
 | ComponentScanner | 14 |
 | UIRouter | 16 |
-| UIStore          | 12 |
-| StoreRegistry    | 12 |
+| UIStore | 12 |
+| StoreRegistry | 12 |
 | JSInteropGenerator | 11 |
 | SpringUICompiler | 8 |
 | TeaVMCompiler | 9 |
 | WasmBridge | 14 |
+| IndexHtmlGenerator | 12 |
 | HotReloadServer | 14 |
 | ComponentInspector | 8 |
 | TodoComponent | 12 |
-| **Total** | **224** |
+| **Total** | **236** |
 
 ---
 
 ## What's Next
 
-- **`#25 index.html`** — browser entry point, first thing that runs in a real browser
-- **`springui-cli`** — scaffold tool for new SpringUI projects
-- **GraphQL support** — via Spring GraphQL
-- **SSR mode** — server-side rendering
-- **Browser DevTools extension** — visual component tree inspector
+### `#26 springui-cli` — scaffold tool ← **NEXT**
+A command-line tool so developers can bootstrap new SpringUI projects in seconds.
+
+```bash
+springui new my-app
+springui new my-app --template todo
+springui build
+springui dev
+```
+
+Planned commands:
+- `new <name>` — scaffold a new SpringUI project (pom.xml, directory structure, sample component)
+- `build` — compile Java → WASM → index.html
+- `dev` — start the hot reload dev server + open browser
+
+This is the developer experience gateway. A familiar CLI (in the spirit of Spring Initializr
+and Create React App) is what turns a GitHub visitor into an actual SpringUI user.
+
+---
+
+### `#27 SpringUI component library`
+Built-in UI components so developers don't start from scratch.
+
+Planned components:
+- `Button`, `Input`, `TextArea`, `Select`, `Checkbox`, `Radio`
+- `Table`, `Modal`, `Spinner`, `Alert`, `Badge`, `Card`
+- All styled with sensible defaults, customizable via `@Props`
+
+---
+
+### `#28 GraphQL support`
+Extend `@BindAPI` to support GraphQL queries via Spring GraphQL.
+
+```java
+@BindAPI(endpoint = "/graphql", query = "{ products { id name price } }")
+public class ProductList extends UIComponent { ... }
+```
+
+---
+
+### `#29 SSR mode`
+Server-side rendering — render the initial HTML on the server,
+hydrate with WASM in the browser. Better SEO, faster first paint.
 
 ---
 

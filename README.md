@@ -37,9 +37,9 @@ public class Counter extends UIComponent {
     @Override
     public VNode render() {
         return div(
-            h1("Count: " + count),
-            button("Increment").onClick(e -> setState(() -> count++)),
-            button("Reset").onClick(e -> setState(() -> count = 0))
+                h1("Count: " + count),
+                button("Increment").onClick(e -> setState(() -> count++)),
+                button("Reset").onClick(e -> setState(() -> count = 0))
         );
     }
 }
@@ -99,9 +99,9 @@ public class UserCard extends UIComponent {
     @Override
     public VNode render() {
         return div(attrs("class", "card"),
-            img(attrs("src", user.getAvatarUrl())),
-            h2(user.getName()),
-            p(user.getBio())
+                img(attrs("src", user.getAvatarUrl())),
+                h2(user.getName()),
+                p(user.getBio())
         );
     }
 }
@@ -138,9 +138,9 @@ public class ProductList extends UIComponent {
     @Override
     public VNode render() {
         return ul(
-            products.stream()
-                .map(p -> li(p.getName() + " — ₹" + p.getPrice()))
-                .toList()
+                products.stream()
+                        .map(p -> li(p.getName() + " — ₹" + p.getPrice()))
+                        .toList()
         );
     }
 }
@@ -288,8 +288,8 @@ as any React app. Think of it as the bridge between Vaadin's Java comfort and Re
 
 ## Why Not Thymeleaf?
 
-Thymeleaf is excellent for simple server-rendered pages. But it has 
-a fundamental ceiling — every interaction requires a server round-trip, 
+Thymeleaf is excellent for simple server-rendered pages. But it has
+a fundamental ceiling — every interaction requires a server round-trip,
 there's no component model, no reactive state, and no SPA capability.
 
 | | Thymeleaf | SpringUI |
@@ -300,8 +300,8 @@ there's no component model, no reactive state, and no SPA capability.
 | Component model | No | Yes |
 | Real-time UI updates | Needs workarounds | Native |
 
-Thymeleaf and SpringUI aren't competitors — they solve different problems. 
-SpringUI is for when your UI needs to feel like a modern web app, not a 
+Thymeleaf and SpringUI aren't competitors — they solve different problems.
+SpringUI is for when your UI needs to feel like a modern web app, not a
 server-rendered page.
 
 ---
@@ -316,10 +316,11 @@ server-rendered page.
 - [x] `@SpringUIStore` — global state management
 - [x] Hot reload dev server
 - [x] Browser DevTools extension
+- [x] `index.html` browser entry point — 236 tests, 0 failures
+- [ ] `springui-cli` scaffold tool — `springui new my-app`
 - [ ] SpringUI component library (buttons, forms, tables, modals)
 - [ ] GraphQL support via Spring GraphQL
 - [ ] SSR (Server-Side Rendering) mode
-- [ ] `springui-cli` scaffold tool
 
 ---
 
