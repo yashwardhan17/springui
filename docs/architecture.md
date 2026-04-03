@@ -414,6 +414,85 @@ props, and current VNode tree. The Java equivalent of React DevTools.
 
 ---
 
+## CLI Tool (Phase 6 — Complete)
+
+### `SpringUICli.java`
+Main entry point for the `springui` command-line tool.
+Parses `args[]`, routes to the appropriate command handler,
+and returns a POSIX exit code (0 = success, 1 = failure).
+```bash
+springui new my-app                        # scaffold a new project
+springui new my-app --template todo        # scaffold from template
+springui build --entry io.myapp.AppComponent  # compile Java → WASM
+springui dev --port 3000                   # start hot-reload server
+```
+
+---
+
+### `NewCommand.java`
+Handles `springui new <name> [--template <tpl>]`.
+Scaffolds a fully-working Maven project in a new directory:
+```
+my-app/
+├── pom.xml
+├── src/
+│   └── main/
+│       ├── java/io/myapp/
+│       │   ├── MyAppApplication.java
+│       │   └── AppComponent.java
+│       └── resources/
+│           └── application.yml
+└── .gitignore
+```
+
+Built-in templates: `blank` (default), `todo`, `counter`.
+
+---
+
+### `BuildCommand.java`
+Handles `springui build --entry <class> [--output <dir>]`.
+Delegates to `SpringUICompiler` (from springui-compiler) to produce:
+```
+springui-out/
+├── index.html
+├── springui.js
+└── springui.wasm
+```
+
+Invokes `SpringUICompiler` reflectively so the CLI jar stays
+self-contained without dragging TeaVM into the test classpath.
+Uses simulation mode in tests (`simulateCompile=true`).
+
+---
+
+### `DevCommand.java`
+Handles `springui dev [--port N] [--no-open]`.
+Starts `HotReloadServer` (from springui-devtools) and optionally
+opens the browser automatically. Also invoked reflectively.
+Uses simulation mode in tests (`simulateServer=true`).
+
+---
+
+### `TemplateEngine.java`
+Renders scaffold file templates using `{{placeholder}}` substitution.
+No external dependency — keeps the CLI fully self-contained.
+
+Templates:
+- `blank` — minimal component stub
+- `counter` — counter component showcasing `@State`
+- `todo` — full todo app mirroring `examples/todo-app`
+
+---
+
+### `CliPrinter.java`
+Colored console output for the CLI.
+Uses ANSI escape codes; degrades gracefully when `NO_COLOR` env var is set.
+
+Output methods: `info()`, `success()`, `warn()`, `error()`, `step()`,
+`banner()`, `usage()`, `scaffoldDone()`, `buildDone()`, `devServerStarted()`
+
+---
+
 ## Full Compilation Flow
 
 Here's the complete path from Java source to running browser app:
@@ -495,33 +574,19 @@ SpringUI brings the same model to Java via WebAssembly.
 | HotReloadServer | 14 |
 | ComponentInspector | 8 |
 | TodoComponent | 12 |
-| **Total** | **236** |
+| SpringUICli | 17 |
+| NewCommand | 16 |
+| BuildCommand | 12 |
+| DevCommand | 10 |
+| TemplateEngine | 13 |
+| CliPrinter | 12 |
+| **Total** | **316** |
 
 ---
 
 ## What's Next
 
-### `#26 springui-cli` — scaffold tool ← **NEXT**
-A command-line tool so developers can bootstrap new SpringUI projects in seconds.
-
-```bash
-springui new my-app
-springui new my-app --template todo
-springui build
-springui dev
-```
-
-Planned commands:
-- `new <name>` — scaffold a new SpringUI project (pom.xml, directory structure, sample component)
-- `build` — compile Java → WASM → index.html
-- `dev` — start the hot reload dev server + open browser
-
-This is the developer experience gateway. A familiar CLI (in the spirit of Spring Initializr
-and Create React App) is what turns a GitHub visitor into an actual SpringUI user.
-
----
-
-### `#27 SpringUI component library`
+### `#27 SpringUI component library` ← **NEXT**
 Built-in UI components so developers don't start from scratch.
 
 Planned components:
@@ -533,7 +598,6 @@ Planned components:
 
 ### `#28 GraphQL support`
 Extend `@BindAPI` to support GraphQL queries via Spring GraphQL.
-
 ```java
 @BindAPI(endpoint = "/graphql", query = "{ products { id name price } }")
 public class ProductList extends UIComponent { ... }

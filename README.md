@@ -317,7 +317,7 @@ server-rendered page.
 - [x] Hot reload dev server
 - [x] Browser DevTools extension
 - [x] `index.html` browser entry point — 236 tests, 0 failures
-- [ ] `springui-cli` scaffold tool — `springui new my-app`
+- [x] `springui-cli` scaffold tool — `springui new my-app`
 - [ ] SpringUI component library (buttons, forms, tables, modals)
 - [ ] GraphQL support via Spring GraphQL
 - [ ] SSR (Server-Side Rendering) mode
